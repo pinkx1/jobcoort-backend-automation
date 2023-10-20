@@ -1,11 +1,13 @@
 import { AuthenticationPOM } from "./auth.setup";
-import { test, request } from "@playwright/test";
+import { test, request, APIRequestContext } from "@playwright/test";
 
 export class POManager {
 	private readonly authenticationPOM: AuthenticationPOM;
+	private readonly request: APIRequestContext;
 
-	constructor() {
-		this.authenticationPOM = new AuthenticationPOM();
+	constructor(request: APIRequestContext) {
+		this.request = request;
+		this.authenticationPOM = new AuthenticationPOM(this.request);
 	}
 
 	onAuthenticationPage() {
@@ -13,10 +15,10 @@ export class POManager {
 	}
 
 	async authenticateAsDefaultUser() {
-		await this.authenticationPOM.authenticateAsDefaultUser(request);
+		await this.authenticationPOM.authenticateAsDefaultUser(this.request);
 	}
 
 	async authenticateAsCandidateUser() {
-		await this.authenticationPOM.authenticateAsCandidateUser(request);
+		await this.authenticationPOM.authenticateAsCandidateUser(this.request);
 	}
 }

@@ -1,13 +1,13 @@
-import { test, request } from "@playwright/test";
+import { test, request, APIRequestContext } from "@playwright/test";
 
 export class AuthenticationPOM {
-	request: Request;
+	request: APIRequestContext;
 	users: any;
 	authTokens: any;
-	//request: any;
+	// request: APIRequest;
 
-	constructor() {
-		//this.request = request;
+	constructor(request: APIRequestContext) {
+		this.request = request;
 		this.users = {
 			defaultAcc: {
 				username: process.env.DEFAULT_ACC_USERNAME,
@@ -32,7 +32,7 @@ export class AuthenticationPOM {
 		});
 	}
 
-	async authenticateAsDefaultUser(request) {
+	async authenticateAsDefaultUser(request: APIRequestContext) {
 		const response = await request.post("/api/v1/login", {
 			data: {
 				value: this.users.defaultAcc.username,
@@ -40,12 +40,12 @@ export class AuthenticationPOM {
 			},
 		});
 		const responseBody = await response.json();
-		const authToken = responseBody.data.authToken;
+		const authToken = await responseBody.data.authToken;
 		this.authTokens.defaultAcc.authToken = authToken;
 		this.setupExtraHeaders(authToken);
 	}
 
-	async authenticateAsCandidateUser(request) {
+	async authenticateAsCandidateUser(request: APIRequestContext) {
 		const response = await request.post("/api/v1/login", {
 			data: {
 				value: this.users.candidateAcc.username,
