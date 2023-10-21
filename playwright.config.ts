@@ -3,7 +3,6 @@ import { defineConfig } from "@playwright/test";
 require("dotenv").config();
 
 export default defineConfig({
-	//globalSetup: "./tests/auth.setup.ts",
 	testDir: "./tests",
 	fullyParallel: true,
 	reporter: "html",
@@ -18,11 +17,12 @@ export default defineConfig({
 	projects: [
 		{
 			name: "setup",
-			testDir: ".tests/auth.setup.ts",
+			testMatch: "tests/*.setup.ts",
 		},
 		{
 			name: "tests",
-			testDir: "./tests",
+			testMatch: "tests/*.spec.ts",
+			dependencies: ["setup"],
 		},
 	],
 });

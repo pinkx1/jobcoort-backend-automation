@@ -1,4 +1,4 @@
-import { test, expect } from "./fixtures";
+import { test } from "./fixtures";
 
 test("Default test", async ({ defaultUser }, workerInfo) => {
 	const response = await defaultUser.post("/api/v1/auth/comment", {

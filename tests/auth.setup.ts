@@ -1,19 +1,18 @@
 import { test as setup } from "@playwright/test";
 
 const users = {
-	defaultAcc: {
+	default_Acc: {
 		username: process.env.DEFAULT_ACC_USERNAME,
 		password: process.env.DEFAULT_ACC_PASSWORD,
 	},
-	candidateAcc: {
+	candidate_Acc: {
 		username: process.env.CANDIDATE_ACC_USERNAME,
 		password: process.env.CANDIDATE_ACC_PASSWORD,
 	},
-};
-
-export const authTokens = {
-	defaultAcc: "",
-	candidateAcc: "",
+	employer_acc: {
+		username: process.env.CANDIDATE_ACC_USERNAME,
+		password: process.env.CANDIDATE_ACC_PASSWORD,
+	},
 };
 
 setup("Get auth tokens for all accounts", async ({ request }) => {
@@ -27,6 +26,6 @@ setup("Get auth tokens for all accounts", async ({ request }) => {
 		const responseBody = await response.json();
 		const authToken = responseBody.data.authToken;
 
-		authTokens[user] = authToken;
+		process.env[`${user.toUpperCase()}_AUTH_TOKEN`] = authToken;
 	}
 });
