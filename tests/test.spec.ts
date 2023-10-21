@@ -1,11 +1,7 @@
-import { POManager } from "./../pageObject/POManager";
-import { test, expect } from "@playwright/test";
+import { test, expect } from "./fixtures";
 
-test("Default test", async ({ request }) => {
-	const pm = new POManager(request);
-	pm.authenticateAsDefaultUser();
-
-	const response = await request.post("/api/v1/auth/comment", {
+test("Default test", async ({ defaultUser }, workerInfo) => {
+	const response = await defaultUser.post("/api/v1/auth/comment", {
 		data: {
 			advert: "$2y$10$pdXbfDLhtj58IBd8ifDQ0OcLZXqickUKd.Snt5dTzp/zHXOkdblie",
 			parent: null,
@@ -14,13 +10,11 @@ test("Default test", async ({ request }) => {
 		},
 	});
 	const responseBody = await response.json();
+	//expect(response.ok()).toBeTruthy();
 });
 
-test("Candidate test", async ({ request }) => {
-	const pm = new POManager(request);
-	pm.authenticateAsCandidateUser;
-
-	const response = await request.post("/api/v1/auth/comment", {
+test("Candidate test", async ({ candidateUser }, workerInfo) => {
+	const response = await candidateUser.post("/api/v1/auth/comment", {
 		data: {
 			advert: "$2y$10$pdXbfDLhtj58IBd8ifDQ0OcLZXqickUKd.Snt5dTzp/zHXOkdblie",
 			parent: null,

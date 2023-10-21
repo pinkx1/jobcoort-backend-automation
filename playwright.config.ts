@@ -3,6 +3,7 @@ import { defineConfig } from "@playwright/test";
 require("dotenv").config();
 
 export default defineConfig({
+	//globalSetup: "./tests/auth.setup.ts",
 	testDir: "./tests",
 	fullyParallel: true,
 	reporter: "html",
@@ -14,15 +15,14 @@ export default defineConfig({
 		},
 		trace: "retain-on-failure",
 	},
-	// projects: [
-	// 	{
-	// 		name: "setup",
-	// 		testMatch: "default_acc_auth.setup.ts",
-	// 	},
-	// 	{
-	// 		name: "default user",
-	// 		use: { storageState: ".auth/default_user.json" },
-	// 		dependencies: ["setup"],
-	// 	},
-	// ],
+	projects: [
+		{
+			name: "setup",
+			testDir: ".tests/auth.setup.ts",
+		},
+		{
+			name: "tests",
+			testDir: "./tests",
+		},
+	],
 });
