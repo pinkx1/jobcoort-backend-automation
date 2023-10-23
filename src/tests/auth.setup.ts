@@ -24,7 +24,8 @@ setup("Get auth tokens for all accounts", async ({ request }) => {
 			},
 		});
 		const responseBody = await response.json();
-		const authToken = responseBody.data.authToken;
+		const Token = responseBody.data.authToken;
+		const authToken = `Bearer ${Token}`;
 
 		process.env[`${user.toUpperCase()}_AUTH_TOKEN`] = authToken;
 	}
