@@ -1,4 +1,4 @@
-import { test as baseTest } from "@playwright/test";
+import { test as baseTest, expect } from "@playwright/test";
 import api from "../features/APIutils";
 
 type MyFixtures = {
@@ -12,4 +12,4 @@ const fixtures = baseTest.extend<MyFixtures>({
 	},
 });
 
-export { fixtures };
+export { fixtures, expect };

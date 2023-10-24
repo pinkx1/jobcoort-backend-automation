@@ -1,5 +1,4 @@
-import { fixtures as test } from "../utils/fixtures";
-import { expect } from "@playwright/test";
+import { fixtures as test, expect } from "../utils/fixtures";
 
 test("Leave a comment from the default acc", async ({ API }) => {
 	const response = await API.postReq(
@@ -12,7 +11,7 @@ test("Leave a comment from the default acc", async ({ API }) => {
 		},
 		process.env.DEFAULT_ACC_AUTH_TOKEN
 	);
-	const responseBody = await response.json();
+	//const responseBody = await response.json();
 	expect(response.ok()).toBeTruthy();
 });
 

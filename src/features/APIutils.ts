@@ -6,7 +6,12 @@ export default class API {
 	constructor(request: APIRequestContext) {
 		this.request = request;
 	}
-	private async makeRequest(endpoint: string, method: string, reqBody?: object, authToken?: string) {
+	private async makeRequest(
+		endpoint: string,
+		method: string,
+		reqBody?: object,
+		authToken?: string
+	) {
 		const res = await this.request[method](endpoint, {
 			headers: authToken ? { "auth-token": authToken } : {},
 			data: reqBody,
