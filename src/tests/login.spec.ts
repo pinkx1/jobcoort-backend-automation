@@ -1,44 +1,131 @@
-import { fixtures as test } from "../utils/fixtures";
-import { expect } from "@playwright/test";
-// import Ajv from "ajv";
-// import { validateJsonSchema } from "../helpers/validateJsonSchema";
-import { z } from "zod";
+import { fixtures as test, expect } from "../utils/fixtures";
+import schemas from "../shemas/loginShemas";
+import { isCorrectAvatarColor } from "../utils/helperFunctions";
 
-test("Login via valid email address", async ({ request, API }) => {
-	const response = await API.postReq("/api/v1/login", {
-		deviceId: "601294688103192",
-		deviceInfo:
-			'{"ua":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36","browser":{"name":"Chrome","version":"118.0.0.0","major":"118"},"engine":{"name":"Blink","version":"118.0.0.0"},"os":{"name":"Windows","version":"10"},"device":{},"cpu":{"architecture":"amd64"}}',
-		timezone: "Asia/Yerevan",
-		value: process.env.DEFAULT_ACC_USERNAME,
-		password: process.env.DEFAULT_ACC_PASSWORD,
-	});
+test("Login via valid email address", async ({ API }) => {
+	const request = API.createLoginRequest(
+		process.env.DEFAULT_ACC_EMAIL as string,
+		process.env.DEFAULT_ACC_PASSWORD as string
+	);
+	const response = await API.postReq(request.endpoint, request.reqBody);
+
 	expect(response.status()).toBe(200);
-	expect((await response.json()).data.fullName).toBe("Default Account");
-	expect(await response.json()).toHaveProperty("data.authToken");
+	const loginSchema = schemas.validLoginShemaDefaultAcc;
+	expect(response).toMatchSchema(loginSchema);
+	const responseBody = await response.json();
 
-	const loginShema = z.object({
-		data: z.object({
-			fullName: z.string(),
-			colorValue: z.string(),
-			roles: z.array(z.string(), z.string()),
-			id: z.number(),
-			username: z.string(),
-			firstName: z.string(),
-			lastName: z.string(),
-			initials: z.string(),
-			online: z.boolean(),
-			authToken: z.string(),
-			employerRating: z.number(),
-			candidateRating: z.number(),
-			employerReviewsTotal: z.number(),
-			candidateReviewsTotal: z.number(),
-			picture: z.string(),
-			locale: z.string(),
-		}),
-	});
+	expect(responseBody.data.fullName).toBe("Default Account");
 
-	const mySchema = z.string();
-	mySchema.safeParse("tuna"); // => { success: true; data: "tuna" }
-	expect(response).toMatchSchema(loginShema);
+	const userdata = await API.UserdataRequest(
+		process.env.DEFAULT_ACC_USERNAME as string
+	);
+	const creationDate = userdata.data.createdAt;
+
+	expect(
+		await isCorrectAvatarColor(creationDate, responseBody.data.colorValue)
+	).toBeTruthy();
+	expect(responseBody.data.roles).toStrictEqual(["candidate", "employer"]);
+
+	expect(responseBody.data.id).toBe(1349);
+	expect(responseBody.data.username).toBe("defaultaccount");
+	expect(responseBody.data.firstName).toBe("Default");
+	expect(responseBody.data.lastName).toBe("Account");
+	expect(responseBody.data.initials).toBe("DA");
+	expect(responseBody.data.online).toBe(true);
+	expect(responseBody.data.employerRating).toBeGreaterThanOrEqual(0.0);
+	expect(responseBody.data.candidateRating).toBeGreaterThanOrEqual(0.0);
+	expect(responseBody.data.employerReviewsTotal).toBeGreaterThanOrEqual(0);
+	expect(responseBody.data.candidateReviewsTotal).toBeGreaterThanOrEqual(2);
+	expect(responseBody.data.picture).toMatch(
+		/^(https?|http):\/\/[^\s$.?#].[^\s]*\.webp$/
+	);
+	expect(responseBody.data.locale).toBe("en");
 });
+
+test("Login via valid phone number", async ({ API }) => {
+	const request = API.createLoginRequest(
+		process.env.DEFAULT_ACC_PHONE_NUMBER as string,
+		process.env.DEFAULT_ACC_PASSWORD as string
+	);
+	const response = await API.postReq(request.endpoint, request.reqBody);
+
+	expect(response.status()).toBe(200);
+	const loginSchema = schemas.validLoginShemaDefaultAcc;
+});
+
+test("Valid logout", async ({ API }) => {
+	const response = await API.getReq(
+		"/api/v1/auth/security/logout",
+		process.env.DEFAULT_ACC_AUTH_TOKEN
+	);
+	expect(response.status()).toBe(200);
+	const responseBody = await response.json();
+	expect(responseBody).toStrictEqual([]);
+});
+
+test("Login to deleted account", async ({ API }) => {
+	const request = API.createLoginRequest(
+		process.env.DELETED_ACC_EMAIL as string,
+		process.env.DELETED_ACC_PASSWORD as string
+	);
+	const response = await API.postReq(request.endpoint, request.reqBody);
+
+	expect(response.status()).toBe(400);
+	const responseBody = await response.json();
+	expect(responseBody.code).toBe(400);
+	expect(responseBody.message).toBe("wrongLoginCredentials");
+});
+
+test("Login to account with old password", async ({ API }) => {
+	const request = API.createLoginRequest(
+		process.env.CHANGED_PASSWORD_ACC_OLD_PASSWORD as string,
+		process.env.DELETED_ACC_PASSWORD as string
+	);
+	const response = await API.postReq(request.endpoint, request.reqBody);
+
+	expect(response.status()).toBe(400);
+	const responseBody = await response.json();
+	expect(responseBody.code).toBe(400);
+	expect(responseBody.message).toBe("wrongLoginCredentials");
+});
+
+test("Login to account with incorrect password", async ({ API }) => {
+	const request = API.createLoginRequest(
+		process.env.DEFAULT_ACC_EMAIL as string,
+		"IncorrectPassword123"
+	);
+	const response = await API.postReq(request.endpoint, request.reqBody);
+
+	expect(response.status()).toBe(400);
+	const responseBody = await response.json();
+	expect(responseBody.code).toBe(400);
+	expect(responseBody.message).toBe("wrongLoginCredentials");
+});
+
+// test.describe("Username validation", () => {
+// 	test("Email with numbers in name", async ({ API }) => {
+// 		const request = API.createLoginRequest(
+// 			"test123@myezjob.com",
+// 			"123qweQWE"
+// 		);
+// 		const response = await API.postReq(request.endpoint, request.reqBody);
+
+// 		expect(response.status()).toBe(400);
+// 		const responseBody = await response.json();
+// 		expect(responseBody.code).toBe(400);
+// 		expect(responseBody.message).toBe("wrongLoginCredentials");
+// 	});
+
+// 	test("Email with numbers in domain", async ({ API }) => {
+// 		const request = API.createLoginRequest(
+// 			"test@myezjob123.com",
+// 			"123qweQWE"
+// 		);
+// 		const response = await API.postReq(request.endpoint, request.reqBody);
+
+// 		expect(response.status()).toBe(400);
+// 		const responseBody = await response.json();
+// 		expect(responseBody.code).toBe(400);
+// 		expect(responseBody.message).toBe("wrongLoginCredentials");
+// 	});
+// });
