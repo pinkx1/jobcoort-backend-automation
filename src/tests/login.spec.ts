@@ -13,10 +13,10 @@ test("Login via valid email address", async ({ API }) => {
 
 	const request = API.createLoginRequest(email, password);
 	const response = await API.postReq(request.endpoint, request.reqBody);
+	const responseBody = await response.json();
 
 	expect(response.status()).toBe(200);
 	expect(response).toMatchSchema(schemas.validLoginShemaDefaultAcc);
-	const responseBody = await response.json();
 
 	expect(responseBody.data.fullName).toBe("Default Account");
 
