@@ -8,7 +8,7 @@ export default class API {
 	constructor(request: APIRequestContext) {
 		this.request = request;
 	}
-	
+
 	private async makeRequest(
 		endpoint: string,
 		method: HttpMethod,

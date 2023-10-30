@@ -1,6 +1,11 @@
 import { test as setup } from "@playwright/test";
 
-const users = {
+const users: {
+	[key: string]: {
+		username: string | undefined;
+		password: string | undefined;
+	};
+} = {
 	default_Acc: {
 		username: process.env.DEFAULT_ACC_PHONE_NUMBER,
 		password: process.env.DEFAULT_ACC_PASSWORD,

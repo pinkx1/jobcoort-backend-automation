@@ -1,6 +1,8 @@
 import { fixtures as test, expect } from "../utils/fixtures";
 import schemas from "../shemas/loginShemas";
 import { isCorrectAvatarColor } from "../utils/helperFunctions";
+import { getRegistrationBody } from "..
+
 
 test("Login via valid email address", async ({ API }) => {
 	const request = API.createLoginRequest(
@@ -16,14 +18,10 @@ test("Login via valid email address", async ({ API }) => {
 
 	expect(responseBody.data.fullName).toBe("Default Account");
 
-	const userdata = await API.UserdataRequest(
-		process.env.DEFAULT_ACC_USERNAME as string
-	);
+	const userdata = await API.UserdataRequest(process.env.DEFAULT_ACC_USERNAME as string);
 	const creationDate = userdata.data.createdAt;
 
-	expect(
-		await isCorrectAvatarColor(creationDate, responseBody.data.colorValue)
-	).toBeTruthy();
+	expect(await isCorrectAvatarColor(creationDate, responseBody.data.colorValue)).toBeTruthy();
 	expect(responseBody.data.roles).toStrictEqual(["candidate", "employer"]);
 
 	expect(responseBody.data.id).toBe(1349);
@@ -36,9 +34,7 @@ test("Login via valid email address", async ({ API }) => {
 	expect(responseBody.data.candidateRating).toBeGreaterThanOrEqual(0.0);
 	expect(responseBody.data.employerReviewsTotal).toBeGreaterThanOrEqual(0);
 	expect(responseBody.data.candidateReviewsTotal).toBeGreaterThanOrEqual(2);
-	expect(responseBody.data.picture).toMatch(
-		/^(https?|http):\/\/[^\s$.?#].[^\s]*\.webp$/
-	);
+	expect(responseBody.data.picture).toMatch(/^(https?|http):\/\/[^\s$.?#].[^\s]*\.webp$/);
 	expect(responseBody.data.locale).toBe("en");
 });
 
@@ -54,6 +50,8 @@ test("Login via valid phone number", async ({ API }) => {
 });
 
 test("Valid logout", async ({ API }) => {
+	const body = await getRegistrationBody(API, "forEmployerAcc");
+	const response = await API.postReq("/api/v1/registration", body.forEmployerAcc);
 	const response = await API.getReq(
 		"/api/v1/auth/security/logout",
 		process.env.DEFAULT_ACC_AUTH_TOKEN
