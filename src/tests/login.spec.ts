@@ -79,9 +79,9 @@ test("Login to deleted account", async ({ API }) => {
 		process.env.DELETED_ACC_PASSWORD as string
 	);
 	const response = await API.postReq(request.endpoint, request.reqBody);
+	const responseBody = await response.json();
 
 	expect(response.status()).toBe(400);
-	const responseBody = await response.json();
 	expect(responseBody.code).toBe(400);
 	expect(responseBody.message).toBe("wrongLoginCredentials");
 });
