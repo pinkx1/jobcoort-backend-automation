@@ -11,7 +11,7 @@ test("Leave a comment from the default acc", async ({ API }) => {
 		},
 		process.env.DEFAULT_ACC_AUTH_TOKEN
 	);
-	//const responseBody = await response.json();
+	const responseBody = await response.json();
 	expect(response.ok()).toBeTruthy();
 });
 

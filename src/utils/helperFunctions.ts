@@ -1,7 +1,11 @@
-export async function isCorrectAvatarColor(
-	creationDate: string,
-	avatarColor: string
-) {
+/**
+ * Проверяет, соответствует ли цвет аватара ожидаемому цвету в зависимости от дня недели.
+ * @param creationDate - Дата создания, на основе которой определяется день недели.
+ * @param avatarColor - Цвет аватара, который требуется проверить.
+ * @returns True, если цвет аватара соответствует ожидаемому цвету, и False в противном случае.
+ * @throws Error - Если указан недопустимый день недели.
+ */
+export async function isCorrectAvatarColor(creationDate: string, avatarColor: string) {
 	const date = new Date(creationDate);
 	const dayOfWeek = date.getDay();
 

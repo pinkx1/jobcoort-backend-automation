@@ -14,9 +14,7 @@ expect.extend({
 			return {
 				message: () =>
 					"Result does not match schema: " +
-					result.error.issues
-						.map((issue) => issue.message)
-						.join("\n") +
+					result.error.issues.map((issue) => issue.message).join("\n") +
 					"\n" +
 					"Details: " +
 					JSON.stringify(result.error, null, 2),

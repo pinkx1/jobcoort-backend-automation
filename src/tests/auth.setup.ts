@@ -1,11 +1,11 @@
 import { test as setup } from "@playwright/test";
 
-const users: {
-	[key: string]: {
-		username: string | undefined;
-		password: string | undefined;
-	};
-} = {
+interface User {
+	username: string | undefined;
+	password: string | undefined;
+}
+
+const users: { [key: string]: User } = {
 	default_Acc: {
 		username: process.env.DEFAULT_ACC_PHONE_NUMBER,
 		password: process.env.DEFAULT_ACC_PASSWORD,
@@ -21,7 +21,7 @@ const users: {
 };
 
 setup("Get auth tokens for all accounts", async ({ request }) => {
-	for (const user in users) {
+	const requests = Object.keys(users).map(async (user) => {
 		const response = await request.post("/api/v1/login", {
 			data: {
 				deviceId: "601294688103192",
@@ -37,5 +37,8 @@ setup("Get auth tokens for all accounts", async ({ request }) => {
 		const authToken = `Bearer ${Token}`;
 
 		process.env[`${user.toUpperCase()}_AUTH_TOKEN`] = authToken;
-	}
+		return authToken;
+	});
+
+	const authTokens = await Promise.all(requests);
 });
